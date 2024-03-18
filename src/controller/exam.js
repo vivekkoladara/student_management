@@ -1,8 +1,30 @@
 const exam = require("../model/m_exam");
+const { ObjectId } = require("mongodb");
 
+//get all exams
 const getExams = async (req, res) => {
   try {
-    const data = await exam.find();
+    const data = await exam.aggregate([
+      {
+        $lookup: {
+          from: "subjects",
+          localField: "sub_id",
+          foreignField: "_id",
+          as: "subjects",
+        },
+      },
+      {
+        $unwind: "$subjects",
+      },
+      {
+        $project: {
+          _id: 1,
+          exam_title: 1,
+          marks: 1,
+          subject_name: "$subjects.sub_name",
+        },
+      },
+    ]);
     if (!data || data.length < 1) {
       return res.status(200).json({ msg: "No Exam Found" });
     } else {
@@ -13,9 +35,36 @@ const getExams = async (req, res) => {
   }
 };
 
+// get exams by exam_id/_id
 const getExam = async (req, res) => {
   try {
-    const data = await exam.findById(req?.params.id);
+    const id = req?.params?.id;
+    const data = await exam.aggregate([
+      {
+        $match: {
+          _id: new ObjectId(id),
+        },
+      },
+      {
+        $lookup: {
+          from: "subjects",
+          localField: "sub_id",
+          foreignField: "_id",
+          as: "subjects",
+        },
+      },
+      {
+        $unwind: "$subjects",
+      },
+      {
+        $project: {
+          _id: 1,
+          exam_title: 1,
+          marks: 1,
+          subject_name: "$subjects.sub_name",
+        },
+      },
+    ]);
     if (!data) {
       return res.status(200).json({ msg: "No Exam Found With given ID." });
     } else {
@@ -26,6 +75,7 @@ const getExam = async (req, res) => {
   }
 };
 
+// create new exam
 const insertExam = async (req, res) => {
   try {
     const data = new exam(req.body);
@@ -36,6 +86,7 @@ const insertExam = async (req, res) => {
   }
 };
 
+// update exam usign  _id
 const updateExam = async (req, res) => {
   try {
     const data = req.body;
@@ -46,6 +97,7 @@ const updateExam = async (req, res) => {
   }
 };
 
+// delete the exam using _id
 const deleteExam = async (req, res) => {
   try {
     const data = await exam.deleteOne({ _id: req?.params?.id });
