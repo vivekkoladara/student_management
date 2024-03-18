@@ -1,8 +1,49 @@
 const enrolled_student = require("../model/m_enrolled_student");
+const { ObjectId } = require("mongodb");
 
+// get all students with all subjects
 const getEnrolledStudents = async (req, res) => {
   try {
-    const data = await enrolled_student.find();
+    const data = await enrolled_student.aggregate([
+      {
+        $lookup: {
+          from: "students",
+          localField: "student_id",
+          foreignField: "_id",
+          as: "students",
+        },
+      },
+      {
+        $unwind: "$students",
+      },
+      {
+        $lookup: {
+          from: "subjects",
+          localField: "subject_id",
+          foreignField: "_id",
+          as: "subjects",
+        },
+      },
+      {
+        $unwind: "$subjects",
+      },
+      {
+        $group: {
+          _id: "$student_id",
+          student_name: { $first: "$students.stud_name" },
+          subjects: { $push: "$subjects.sub_name" },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          student_id: "$_id",
+          student_name: 1,
+          subjects: 1,
+        },
+      },
+    ]);
+
     if (!data || data.length < 1) {
       return res.status(200).json({ msg: "No Student Found" });
     } else {
@@ -13,9 +54,40 @@ const getEnrolledStudents = async (req, res) => {
   }
 };
 
-const getEnrolledStudent = async (req, res) => {
+//get student name and subject individually
+const getEnrolledStudentss = async (req, res) => {
   try {
-    const data = await enrolled_student.findById(req?.params.id);
+    const data = await enrolled_student.aggregate([
+      {
+        $lookup: {
+          from: "students",
+          localField: "student_id",
+          foreignField: "_id",
+          as: "students",
+        },
+      },
+      {
+        $unwind: "$students",
+      },
+      {
+        $lookup: {
+          from: "subjects",
+          localField: "subject_id",
+          foreignField: "_id",
+          as: "subjects",
+        },
+      },
+      {
+        $unwind: "$subjects",
+      },
+      {
+        $project: {
+          _id: 1,
+          student_name: "$students.stud_name",
+          subject_name: "$subjects.sub_name",
+        },
+      },
+    ]);
     if (!data) {
       return res.status(200).json({ msg: "No Student Found With given ID." });
     } else {
@@ -26,6 +98,123 @@ const getEnrolledStudent = async (req, res) => {
   }
 };
 
+// get students by student id
+const getEnrolledStudent = async (req, res) => {
+  const id = req?.params?.id;
+  try {
+    const data = await enrolled_student.aggregate([
+      {
+        $match: {
+          student_id: new ObjectId(id),
+        },
+      },
+      {
+        $lookup: {
+          from: "students",
+          localField: "student_id",
+          foreignField: "_id",
+          as: "students",
+        },
+      },
+      {
+        $unwind: "$students",
+      },
+      {
+        $lookup: {
+          from: "subjects",
+          localField: "subject_id",
+          foreignField: "_id",
+          as: "subjects",
+        },
+      },
+      {
+        $unwind: "$subjects",
+      },
+      {
+        $group: {
+          _id: "$student_id",
+          student_name: { $first: "$students.stud_name" },
+          subjects: { $push: "$subjects.sub_name" },
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          student_id: "$_id",
+          student_name: 1,
+          subjects: 1,
+        },
+      },
+    ]);
+    if (!data) {
+      return res.status(200).json({ msg: "No Student Found With given ID." });
+    } else {
+      return res.status(200).json(data[0]);
+    }
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+//get students by enrollment/_id
+const getEnrolledStudentt = async (req, res) => {
+  const id = req?.params?.id;
+  try {
+    const data = await enrolled_student.aggregate([
+      {
+        $match: {
+          _id: new ObjectId(id),
+        },
+      },
+      {
+        $lookup: {
+          from: "students",
+          localField: "student_id",
+          foreignField: "_id",
+          as: "students",
+        },
+      },
+      {
+        $unwind: "$students",
+      },
+      {
+        $lookup: {
+          from: "subjects",
+          localField: "subject_id",
+          foreignField: "_id",
+          as: "subjects",
+        },
+      },
+      {
+        $unwind: "$subjects",
+      },
+      {
+        $group: {
+          _id: "$student_id",
+          student_name: { $first: "$students.stud_name" },
+          subjects: { $push: "$subjects.sub_name" },
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          student_id: "$_id",
+          student_name: 1,
+          subjects: 1,
+        },
+      },
+    ]);
+    if (!data) {
+      return res.status(200).json({ msg: "No Student Found With given ID." });
+    } else {
+      return res.status(200).json(data[0]);
+    }
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+// insert student
 const insertStudent = async (req, res) => {
   try {
     const data = new enrolled_student(req.body);
@@ -36,6 +225,8 @@ const insertStudent = async (req, res) => {
   }
 };
 
+// update student
+// Note:(if you want to update please select id from the database if not understand how get apis work)
 const updateStudent = async (req, res) => {
   try {
     const data = req.body;
@@ -46,6 +237,7 @@ const updateStudent = async (req, res) => {
   }
 };
 
+// delete student
 const deleteStudent = async (req, res) => {
   try {
     const data = await enrolled_student.deleteOne({ _id: req?.params?.id });
@@ -61,7 +253,9 @@ const deleteStudent = async (req, res) => {
 
 module.exports = {
   getEnrolledStudents,
+  getEnrolledStudentss,
   getEnrolledStudent,
+  getEnrolledStudentt,
   insertStudent,
   updateStudent,
   deleteStudent,

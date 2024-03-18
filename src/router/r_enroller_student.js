@@ -1,8 +1,10 @@
 const express = require("express");
 const {
   getEnrolledStudents,
-  insertStudent,
+  getEnrolledStudentss,
   getEnrolledStudent,
+  getEnrolledStudentt,
+  insertStudent,
   updateStudent,
   deleteStudent,
 } = require("../controller/enrolled_student");
@@ -10,6 +12,9 @@ const {
 const student = express.Router();
 
 student.get("/", getEnrolledStudents);
+//get student name and subject individually
+student.get("/individually", getEnrolledStudentss);
+student.get("/individually/:id", getEnrolledStudentt);
 student.get("/:id", getEnrolledStudent);
 student.post("/", insertStudent);
 student.put("/:id", updateStudent);
