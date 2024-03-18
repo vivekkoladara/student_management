@@ -50,7 +50,7 @@ const deleteSubject = async (req, res) => {
   try {
     const data = await subject.deleteOne({ _id: req?.params?.id });
     if (data.deletedCount > 0) {
-      return res.status(200).json("Deleted Successfully...!!");
+      return res.status(200).json("Subject Deleted Successfully...!!");
     } else {
       return res.status(200).json({ msg: "ID not found!!" });
     }
