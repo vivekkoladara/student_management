@@ -17,20 +17,24 @@ const isValidate = [
     .withMessage("Please Enter Student Id")
     .bail()
     .isMongoId()
-    .withMessage("Please Enter Valid ID"),
+    .withMessage("Please Enter Valid Student ID"),
   body("subject_id")
     .notEmpty()
     .withMessage("Please Enter Subject Id")
     .bail()
     .isMongoId()
-    .withMessage("Please Enter Valid ID"),
+    .withMessage("Please Enter Valid Subject ID"),
 ];
+
 student.get("/", getEnrolledStudents);
 
 //get student name and subject individually
 student.get("/individually", getEnrolledStudentss);
+//get student name and subject individually with enrolled_id/_id
 student.get("/individually/:id", getEnrolledStudentt);
+
 student.get("/:id", getEnrolledStudent);
+
 student.post("/", isValidate, (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -39,14 +43,8 @@ student.post("/", isValidate, (req, res) => {
     insertStudent(req, res);
   }
 });
-student.put("/:id", isValidate, (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  } else {
-    updateStudent(req, res);
-  }
-});
+
+student.put("/:id", updateStudent);
 student.delete("/:id", deleteStudent);
 
 module.exports = student;

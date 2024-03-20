@@ -5,7 +5,7 @@ const examSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  sub_id: {
+  subject_id: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "subject",
     required: true,

@@ -3,12 +3,12 @@ const { createLogger, transports, format } = require("winston");
 const logg = createLogger({
   transports: [
     new transports.File({
-      filename: "info.log",
+      filename: "info_log.log",
       level: "info",
       format: format.combine(format.timestamp(), format.json()),
     }),
     new transports.File({
-      filename: "error.log",
+      filename: "error_log.log",
       level: "error",
       format: format.combine(format.timestamp(), format.json()),
     }),

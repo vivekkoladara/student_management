@@ -13,8 +13,10 @@ const subject = express.Router();
 const isValidate = [
   body("sub_name")
     .notEmpty()
-    .isString()
-    .withMessage("Please Enter Subject Name"),
+    .withMessage("Please Enter Subject Name")
+    .bail()
+    .isLength({ min: 3 })
+    .withMessage("Subject Name Must  Be At Least 3 Characters"),
 ];
 
 subject.get("/", getSubjects);

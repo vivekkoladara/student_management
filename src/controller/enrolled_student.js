@@ -218,8 +218,23 @@ const getEnrolledStudentt = async (req, res) => {
 const insertStudent = async (req, res) => {
   try {
     const data = new enrolled_student(req.body);
-    await data.save();
-    return res.status(200).json("New Record Inserted Successfully...!!");
+
+    const stud_id = data.student_id;
+    const sub_id = data.subject_id;
+
+    const isExist = await enrolled_student.find({
+      student_id: stud_id,
+      subject_id: sub_id,
+    });
+
+    if (isExist.length > 0) {
+      return res
+        .status(200)
+        .json({ msg: "Student Already Enrolled With This Subject" });
+    } else {
+      await data.save();
+      return res.status(200).json("New Record Inserted Successfully...!!");
+    }
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
@@ -230,8 +245,12 @@ const insertStudent = async (req, res) => {
 const updateStudent = async (req, res) => {
   try {
     const data = req.body;
-    await enrolled_student.updateOne({ _id: req?.params?.id }, data);
-    return res.status(200).json("Student Updated Successfully...!!");
+    if (!data || Object.keys(data).length === 0) {
+      return res.status(400).json({ msg: "Please provide fields to update" });
+    } else {
+      await enrolled_student.updateOne({ _id: req?.params?.id }, data);
+      return res.status(200).json("Student Updated Successfully...!!");
+    }
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }

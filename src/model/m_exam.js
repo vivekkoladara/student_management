@@ -13,6 +13,10 @@ const examSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     required: true,
   },
+  obtain_marks: {
+    type: Number,
+    required: true,
+  },
 });
 
 const exam = new mongoose.model("exam", examSchema);

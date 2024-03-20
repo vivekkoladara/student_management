@@ -29,8 +29,15 @@ const getSubject = async (req, res) => {
 const insertSubject = async (req, res) => {
   try {
     const data = new subject(req.body);
-    await data.save();
-    return res.status(200).json("New Subject Inserted Successfully...!!");
+    const subject_name = data.sub_name;
+
+    const isExist = await subject.find({ sub_name: subject_name });
+    if (isExist.length > 0) {
+      return res.status(200).json({ msg: "Subject Name Already Exists" });
+    } else {
+      await data.save();
+      return res.status(200).json("New Subject Inserted Successfully...!!");
+    }
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }

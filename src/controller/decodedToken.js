@@ -5,8 +5,6 @@ const FetchUserId = (token) => {
 
   const decToken = Jwt.decode(tokenn);
 
-  // console.log("token => ", decToken);
-  // console.log("studID => ", decToken?.student_id);
   return decToken?.student_id;
 };
 

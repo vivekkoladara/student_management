@@ -70,7 +70,6 @@ const getExam = async (req, res) => {
     if (data.length === 0) {
       return res.status(404).json({ msg: "No Exam Found With Given ID" });
     } else {
-      console.log("data =>", data[0]);
       return res.status(200).json(data[0]);
     }
   } catch (error) {
@@ -82,8 +81,17 @@ const getExam = async (req, res) => {
 const insertExam = async (req, res) => {
   try {
     const data = new exam(req.body);
-    await data.save();
-    return res.status(200).json("New Exam Created Successfully...!!");
+    const title = data.exam_title;
+    const sub_id = data.subject_id;
+    const isExist = await exam.find({ exam_title: title, subject_id: sub_id });
+    if (isExist.length > 0) {
+      return res.status(200).json({
+        msg: "Exam is already exis with this exam title and subject id",
+      });
+    } else {
+      await data.save();
+      return res.status(200).json("New Exam Created Successfully...!!");
+    }
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
@@ -93,8 +101,12 @@ const insertExam = async (req, res) => {
 const updateExam = async (req, res) => {
   try {
     const data = req.body;
-    await exam.updateOne({ _id: req?.params?.id }, data);
-    return res.status(200).json("Exam Updated Successfully...!!");
+    if (!data || Object.keys(data).length === 0) {
+      return res.status(400).json({ msg: "Please provide fields to update" });
+    } else {
+      await exam.updateOne({ _id: req?.params?.id }, data);
+      return res.status(200).json("Exam Updated Successfully...!!");
+    }
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
