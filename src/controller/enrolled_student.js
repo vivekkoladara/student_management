@@ -219,7 +219,7 @@ const insertStudent = async (req, res) => {
   try {
     const data = new enrolled_student(req.body);
     await data.save();
-    return res.status(200).json("New Student Inserted Successfully...!!");
+    return res.status(200).json("New Record Inserted Successfully...!!");
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }

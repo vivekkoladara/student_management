@@ -1,18 +1,32 @@
 const express = require("express");
-const {
-  getExams,
-  getExam,
-  insertExam,
-  updateExam,
-  deleteExam,
-} = require("../controller/exam");
+const { enterStudent } = require("../controller/exam");
+const { validationResult, query } = require("express-validator");
+const exam = express.Router();
 
-const student = express.Router();
+const isValidate = [
+  query("exam_id")
+    .notEmpty()
+    .withMessage("Please Enter Exam Id ")
+    .bail()
+    .isMongoId()
+    .withMessage("Invalid Id"),
 
-student.get("/", getExams);
-student.get("/:id", getExam);
-student.post("/", insertExam);
-student.put("/:id", updateExam);
-student.delete("/:id", deleteExam);
+  query("subject_id")
+    .notEmpty()
+    .withMessage("Please Enter Subject Id")
+    .bail()
+    .isMongoId()
+    .withMessage("Invalid Id"),
+];
 
-module.exports = student;
+exam.post("/", isValidate, (req, res) => {
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  } else {
+    enterStudent(req, res);
+  }
+});
+
+module.exports = exam;

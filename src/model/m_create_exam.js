@@ -1,19 +1,24 @@
 const mongoose = require("mongoose");
 
 const examSchema = new mongoose.Schema({
-  exam_id: {
-    type: mongoose.Schema.Types.ObjectId,
+  exam_title: {
+    type: String,
     required: true,
   },
-  student_id: {
+  sub_id: {
     type: mongoose.Schema.Types.ObjectId,
+    ref: "subject",
     required: true,
   },
-  subject_id: {
-    type: mongoose.Schema.Types.ObjectId,
+  marks: {
+    type: Number,
+    required: true,
+  },
+  exam_date: {
+    type: Date,
     required: true,
   },
 });
 
-const exam = new mongoose.model("exam", examSchema);
+const exam = new mongoose.model("exam_list", examSchema);
 module.exports = exam;
